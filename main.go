@@ -1,4 +1,4 @@
-package check_template
+package ldap
 
 import (
 	"context"
