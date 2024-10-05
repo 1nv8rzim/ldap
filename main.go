@@ -17,6 +17,33 @@ type Schema struct {
 	LDAPS    bool   `key:"ldaps" default:"false"`
 }
 
+func (s *Schema) Validate(config string) error {
+	conf := Schema{}
+
+	err := schema.Unmarshal([]byte(config), &conf)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal config: %w", err)
+	}
+
+	if conf.Server == "" {
+		return fmt.Errorf("server is required; got %q", conf.Server)
+	}
+
+	if conf.Port <= 0 || conf.Port > 65535 {
+		return fmt.Errorf("port is invalid; got %d", conf.Port)
+	}
+
+	if conf.Username == "" {
+		return fmt.Errorf("username is required; got %q", conf.Username)
+	}
+
+	if conf.Password == "" {
+		return fmt.Errorf("password is required; got %q", conf.Password)
+	}
+
+	return nil
+}
+
 func Run(ctx context.Context, config string) error {
 	schema := Schema{}
 
