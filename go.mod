@@ -1,8 +1,13 @@
 module github.com/scorify/ldap
 
-go 1.21.6
+go 1.22.6
 
-require github.com/go-ldap/ldap/v3 v3.4.8
+toolchain go1.22.7
+
+require (
+	github.com/go-ldap/ldap/v3 v3.4.8
+	github.com/scorify/schema v0.0.0
+)
 
 require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
