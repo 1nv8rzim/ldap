@@ -17,7 +17,7 @@ type Schema struct {
 	LDAPS    bool   `key:"ldaps" default:"false"`
 }
 
-func (s *Schema) Validate(config string) error {
+func Validate(config string) error {
 	conf := Schema{}
 
 	err := schema.Unmarshal([]byte(config), &conf)
