@@ -2,11 +2,11 @@ package ldap
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/go-ldap/ldap/v3"
+	"github.com/scorify/schema"
 )
 
 type Schema struct {
@@ -45,18 +45,18 @@ func (s *Schema) Validate(config string) error {
 }
 
 func Run(ctx context.Context, config string) error {
-	schema := Schema{}
+	conf := Schema{}
 
-	err := json.Unmarshal([]byte(config), &schema)
+	err := schema.Unmarshal([]byte(config), &conf)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal config: %w", err)
 	}
 
 	var connStr string
-	if schema.LDAPS {
-		connStr = fmt.Sprintf("ldaps://%s:%d?tls=1&insecure=1", schema.Target, schema.Port)
+	if conf.LDAPS {
+		connStr = fmt.Sprintf("ldaps://%s:%d?tls=1&insecure=1", conf.Server, conf.Port)
 	} else {
-		connStr = fmt.Sprintf("ldap://%s:%d", schema.Target, schema.Port)
+		connStr = fmt.Sprintf("ldap://%s:%d", conf.Server, conf.Port)
 	}
 
 	conn, err := ldap.DialURL(connStr)
@@ -71,7 +71,7 @@ func Run(ctx context.Context, config string) error {
 	}
 
 	conn.SetTimeout(time.Until(deadline))
-	err = conn.Bind(schema.Username, schema.Password)
+	err = conn.Bind(conf.Username, conf.Password)
 	if err != nil {
 		return fmt.Errorf("failed to bind: %w", err)
 	}
