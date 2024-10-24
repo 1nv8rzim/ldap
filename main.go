@@ -3,6 +3,7 @@ package ldap
 import (
 	"context"
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/go-ldap/ldap/v3"
@@ -59,16 +60,20 @@ func Run(ctx context.Context, config string) error {
 		connStr = fmt.Sprintf("ldap://%s:%d", conf.Server, conf.Port)
 	}
 
-	conn, err := ldap.DialURL(connStr)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
 	deadline, ok := ctx.Deadline()
 	if !ok {
 		return fmt.Errorf("context deadline is not set")
 	}
+
+	dialer := &net.Dialer{
+		Deadline: deadline,
+	}
+
+	conn, err := ldap.DialURL(connStr, ldap.DialWithDialer(dialer))
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
 
 	conn.SetTimeout(time.Until(deadline))
 	err = conn.Bind(conf.Username, conf.Password)
